@@ -91,7 +91,7 @@ vim.g.mapleader = ' '
 vim.g.maplocalleader = ' '
 
 -- Set to true if you have a Nerd Font installed and selected in the terminal
-vim.g.have_nerd_font = false
+vim.g.have_nerd_font = true
 
 -- [[ Setting options ]]
 -- See `:help vim.opt`
@@ -183,6 +183,8 @@ vim.keymap.set('t', '<Esc><Esc>', '<C-\\><C-n>', { desc = 'Exit terminal mode' }
 -- Keybinds to make split navigation easier.
 --  Use CTRL+<hjkl> to switch between windows
 --
+vim.keymap.set('n', '<leader>|', '<Cmd>vsp<CR>')
+vim.keymap.set('n', '<leader>"', '<Cmd>split<CR>')
 --  See `:help wincmd` for a list of all window commands
 vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Move focus to the left window' })
 vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
@@ -191,7 +193,10 @@ vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper win
 
 -- Remapping C-d/u to center page
 vim.api.nvim_set_keymap('n', '<C-d>', '<C-d>zz', { noremap = true, silent = true })
-vim.api.nvim_set_keymap('n', '<C-u>', '<C-d>zz', { noremap = true, silent = true })
+vim.api.nvim_set_keymap('n', '<C-u>', '<C-u>zz', { noremap = true, silent = true })
+
+-- NeoTree
+vim.keymap.set('n', '<leader>t', '<Cmd>Neotree toggle<CR>')
 
 -- [[ Basic Autocommands ]]
 --  See `:help lua-guide-autocommands`
@@ -277,6 +282,21 @@ require('lazy').setup({
       },
     },
   },
+  {
+    'christoomey/vim-tmux-navigator',
+    cmd = {
+      'TmuxNavigateLeft',
+      'TmuxNavigateDown',
+      'TmuxNavigateUp',
+      'TmuxNavigateRight',
+    },
+    keys = {
+      { '<c-h>', '<cmd><C-u>TmuxNavigateLeft<cr>' },
+      { '<c-j>', '<cmd><C-u>TmuxNavigateDown<cr>' },
+      { '<c-k>', '<cmd><C-u>TmuxNavigateUp<cr>' },
+      { '<c-l>', '<cmd><C-u>TmuxNavigateRight<cr>' },
+    },
+  },
 
   -- NOTE: Plugins can also be configured to run Lua code when they are loaded.
   --
@@ -355,6 +375,85 @@ require('lazy').setup({
   -- you do for a plugin at the top level, you can do for a dependency.
   --
   -- Use the `dependencies` key to specify the dependencies of a particular plugin
+  -- Harpoon
+  {
+    'theprimeagen/harpoon',
+    branch = 'harpoon2',
+    dependencies = { 'nvim-lua/plenary.nvim' },
+    config = function()
+      require('harpoon'):setup()
+    end,
+    keys = {
+      {
+        '<leader>A',
+        function()
+          require('harpoon'):list():add()
+        end,
+        desc = 'Harpoon file',
+      },
+      {
+        '<leader>a',
+        function()
+          local harpoon = require 'harpoon'
+          harpoon.ui:toggle_quick_menu(harpoon:list())
+        end,
+        desc = 'Harpoon quick menu',
+      },
+      {
+        '<leader>1',
+        function()
+          require('harpoon'):list():select(1)
+        end,
+        desc = 'Harpoon to file 1',
+      },
+      {
+        '<leader>2',
+        function()
+          require('harpoon'):list():select(2)
+        end,
+        desc = 'Harpoon to file 2',
+      },
+      {
+        '<leader>3',
+        function()
+          require('harpoon'):list():select(3)
+        end,
+        desc = 'Harpoon to file 3',
+      },
+      {
+        '<leader>4',
+        function()
+          require('harpoon'):list():select(4)
+        end,
+        desc = 'Harpoon to file 4',
+      },
+      {
+        '<leader>5',
+        function()
+          require('harpoon'):list():select(5)
+        end,
+        desc = 'Harpoon to file 5',
+      },
+    },
+  },
+  -- ToggleTerm: Nice built-in terminal
+  {
+    'akinsho/nvim-toggleterm.lua',
+    version = '*',
+    config = function()
+      require('toggleterm').setup {
+        size = 12,
+        open_mapping = [[<c-]>]],
+        hide_numbers = true, -- hide the number column in toggleterm buffers
+        shade_filetypes = {},
+        shade_terminals = true,
+        shading_factor = '0', -- the degree by which to darken to terminal colour, default: 1 for dark backgrounds, 3 for light
+        start_in_insert = true,
+        persist_size = true,
+        direction = 'horizontal',
+      }
+    end,
+  },
 
   { -- Fuzzy Finder (files, lsp, etc)
     'nvim-telescope/telescope.nvim',
@@ -459,6 +558,15 @@ require('lazy').setup({
         builtin.find_files { cwd = vim.fn.stdpath 'config' }
       end, { desc = '[S]earch [N]eovim files' })
     end,
+  },
+  {
+    'nvim-neo-tree/neo-tree.nvim',
+    branch = 'v3.x',
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+      'nvim-tree/nvim-web-devicons',
+      'MunifTanjim/nui.nvim',
+    },
   },
 
   -- LSP Plugins
@@ -817,9 +925,9 @@ require('lazy').setup({
 
           -- If you prefer more traditional completion keymaps,
           -- you can uncomment the following lines
-          -- ['<Tab>'] = cmp.mapping.confirm { select = true },
-          --['<CR>'] = cmp.mapping.confirm { select = true },
-          ['<Tab>'] = cmp.mapping.select_next_item(),
+          ['<Tab>'] = cmp.mapping.confirm { select = true },
+          ['<CR>'] = cmp.mapping.confirm { select = true },
+          -- ['<Tab>'] = cmp.mapping.select_next_item(),
           --['<S-Tab>'] = cmp.mapping.select_prev_item(),
 
           -- Manually trigger a completion from nvim-cmp.
@@ -923,7 +1031,7 @@ require('lazy').setup({
     main = 'nvim-treesitter.configs', -- Sets main module to use for opts
     -- [[ Configure Treesitter ]] See `:help nvim-treesitter`
     opts = {
-      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'markdown', 'markdown_inline', 'query', 'vim', 'vimdoc' },
+      ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'query', 'vim', 'vimdoc' },
       -- Autoinstall languages that are not installed
       auto_install = true,
       highlight = {
