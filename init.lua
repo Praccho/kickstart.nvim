@@ -220,6 +220,11 @@ vim.api.nvim_create_autocmd('TextYankPost', {
   end,
 })
 
+vim.api.nvim_create_autocmd({'BufRead','BufNewFile'}, {
+  pattern = '*.h',
+  command = 'set filetype=c',
+})
+
 -- Automatically organize imports and format Go files on save
 vim.api.nvim_create_autocmd('BufWritePre', {
   pattern = '*.go',
@@ -755,7 +760,9 @@ require('lazy').setup({
       --  - settings (table): Override the default settings passed when initializing the server.
       --        For example, to see the options for `lua_ls`, you could go to: https://luals.github.io/wiki/settings/
       local servers = {
-        clangd = {},
+        clangd = {
+          filetypes = { 'c' },
+        },
         -- gopls = {},
         -- pyright = {},
         -- rust_analyzer = {},
