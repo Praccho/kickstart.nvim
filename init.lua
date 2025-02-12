@@ -559,13 +559,36 @@ require('lazy').setup({
       end, { desc = '[S]earch [N]eovim files' })
     end,
   },
+  { -- Venv Selector Plugin
+    'linux-cultist/venv-selector.nvim',
+    dependencies = {
+      'neovim/nvim-lspconfig',
+      'nvim-telescope/telescope.nvim',
+      'mfussenegger/nvim-dap-python',
+    },
+    opts = {
+      search_workspace = false, -- Disable workspace search (Miniconda venvs are not inside project folders)
+      search_venv_managers = true, -- Keep searching for venv managers like pyenv and poetry
+      parents = 0, -- Don't go up parent directories, just search the specified path
+      path = '/opt/homebrew/Caskroom/miniconda/base/envs', -- Path to your Miniconda environments
+      anaconda_base_path = '/opt/homebrew/Caskroom/miniconda', -- Base path for Miniconda
+      anaconda_envs_path = '/opt/homebrew/Caskroom/miniconda/base/envs', -- Where Miniconda stores environments
+      name = { 'venv', '.venv', 'env', '.env' }, -- Add "conda" if needed
+      fd_binary_name = 'fd', -- Ensure `fd` is being used for fast searching
+    },
+    event = 'VeryLazy', -- Allows you to run :VenvSelect without a keymapping if desired
+    keys = {
+      { '<leader>vs', '<cmd>VenvSelect<cr>' },
+      { '<leader>vc', '<cmd>VenvSelectCached<cr>' },
+    },
+  },
   {
     'nvim-neo-tree/neo-tree.nvim',
     branch = 'v3.x',
     dependencies = {
       'nvim-lua/plenary.nvim',
       'nvim-tree/nvim-web-devicons',
-      'MunifTanjim/nui.nvim',
+      'muniftanjim/nui.nvim',
     },
   },
 
@@ -971,6 +994,32 @@ require('lazy').setup({
     end,
   },
 
+  -- Feline: Custom status bar
+  {
+    'freddiehaddad/feline.nvim',
+    opts = {},
+    config = function(_, opts)
+      local theme = {
+        fg = '#928374',
+        bg = '#1F2223',
+        black = '#1B1B1B',
+        skyblue = '#458588',
+        cyan = '#83a597',
+        green = '#689d6a',
+        oceanblue = '#1d2021',
+        magenta = '#fb4934',
+        orange = '#fabd2f',
+        red = '#cc241d',
+        violet = '#b16286',
+        white = '#ebdbb2',
+        yellow = '#d79921',
+      }
+      require('feline').setup()
+      require('feline').winbar.setup()
+      require('feline').statuscolumn.setup()
+      require('feline').use_theme(theme)
+    end,
+  },
   { -- Gruvbox Colorscheme
     'ellisonleao/gruvbox.nvim',
     priority = 1000, -- Load before other plugins
@@ -1009,17 +1058,17 @@ require('lazy').setup({
       -- Simple and easy statusline.
       --  You could remove this setup call if you don't like it,
       --  and try some other statusline plugin
-      local statusline = require 'mini.statusline'
+      -- local statusline = require 'mini.statusline'
       -- set use_icons to true if you have a Nerd Font
-      statusline.setup { use_icons = vim.g.have_nerd_font }
+      -- statusline.setup { use_icons = vim.g.have_nerd_font }
 
       -- You can configure sections in the statusline by overriding their
       -- default behavior. For example, here we set the section for
       -- cursor location to LINE:COLUMN
       ---@diagnostic disable-next-line: duplicate-set-field
-      statusline.section_location = function()
-        return '%2l:%-2v'
-      end
+      -- statusline.section_location = function()
+      -- return '%2l:%-2v'
+      -- end
 
       -- ... and there is more!
       --  Check out: https://github.com/echasnovski/mini.nvim
