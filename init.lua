@@ -575,6 +575,7 @@ require('lazy').setup({
       anaconda_envs_path = '/opt/homebrew/Caskroom/miniconda/base/envs', -- Where Miniconda stores environments
       name = { 'venv', '.venv', 'env', '.env' }, -- Add "conda" if needed
       fd_binary_name = 'fd', -- Ensure `fd` is being used for fast searching
+      stay_on_this_version = true,
     },
     event = 'VeryLazy', -- Allows you to run :VenvSelect without a keymapping if desired
     keys = {
