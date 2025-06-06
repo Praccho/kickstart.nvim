@@ -165,6 +165,10 @@ vim.keymap.set('n', '<Esc>', '<cmd>nohlsearch<CR>')
 
 -- Diagnostic keymaps
 vim.keymap.set('n', '<leader>q', vim.diagnostic.setloclist, { desc = 'Open diagnostic [Q]uickfix list' })
+vim.diagnostic.config {
+  -- virtual_lines = true,
+  virtual_text = true,
+}
 
 -- Exit terminal mode in the builtin terminal with a shortcut that is a bit easier
 -- for people to discover. Otherwise, you normally need to press <C-\><C-n>, which
@@ -190,6 +194,7 @@ vim.keymap.set('n', '<C-h>', '<C-w><C-h>', { desc = 'Move focus to the left wind
 vim.keymap.set('n', '<C-l>', '<C-w><C-l>', { desc = 'Move focus to the right window' })
 vim.keymap.set('n', '<C-j>', '<C-w><C-j>', { desc = 'Move focus to the lower window' })
 vim.keymap.set('n', '<C-k>', '<C-w><C-k>', { desc = 'Move focus to the upper window' })
+vim.keymap.set({ 'i', 'n', 'v' }, '<C-C>', '<esc>', { desc = 'Make Ctrl+C behave exactly like escape.' })
 
 -- Remapping C-d/u to center page
 vim.api.nvim_set_keymap('n', '<C-d>', '<C-d>zz', { noremap = true, silent = true })
@@ -280,21 +285,6 @@ require('lazy').setup({
         topdelete = { text = '‾' },
         changedelete = { text = '~' },
       },
-    },
-  },
-  {
-    'christoomey/vim-tmux-navigator',
-    cmd = {
-      'TmuxNavigateLeft',
-      'TmuxNavigateDown',
-      'TmuxNavigateUp',
-      'TmuxNavigateRight',
-    },
-    keys = {
-      { '<c-h>', '<cmd><C-u>TmuxNavigateLeft<cr>' },
-      { '<c-j>', '<cmd><C-u>TmuxNavigateDown<cr>' },
-      { '<c-k>', '<cmd><C-u>TmuxNavigateUp<cr>' },
-      { '<c-l>', '<cmd><C-u>TmuxNavigateRight<cr>' },
     },
   },
 
@@ -574,7 +564,7 @@ require('lazy').setup({
       anaconda_base_path = '/opt/homebrew/Caskroom/miniconda', -- Base path for Miniconda
       anaconda_envs_path = '/opt/homebrew/Caskroom/miniconda/base/envs', -- Where Miniconda stores environments
       name = { 'venv', '.venv', 'env', '.env' }, -- Add "conda" if needed
-      fd_binary_name = 'fd', -- Ensure `fd` is being used for fast searching
+      fd_binary_name = 'fdfind', -- Ensure `fd` is being used for fast searching
       stay_on_this_version = true,
     },
     event = 'VeryLazy', -- Allows you to run :VenvSelect without a keymapping if desired
@@ -604,6 +594,24 @@ require('lazy').setup({
         -- Load luvit types when the `vim.uv` word is found
         { path = 'luvit-meta/library', words = { 'vim%.uv' } },
       },
+    },
+  },
+  {
+    'christoomey/vim-tmux-navigator',
+    cmd = {
+      'TmuxNavigateLeft',
+      'TmuxNavigateDown',
+      'TmuxNavigateUp',
+      'TmuxNavigateRight',
+      'TmuxNavigatePrevious',
+      'TmuxNavigatorProcessList',
+    },
+    keys = {
+      { '<c-h>', '<cmd><C-U>TmuxNavigateLeft<cr>' },
+      { '<c-j>', '<cmd><C-U>TmuxNavigateDown<cr>' },
+      { '<c-k>', '<cmd><C-U>TmuxNavigateUp<cr>' },
+      { '<c-l>', '<cmd><C-U>TmuxNavigateRight<cr>' },
+      { '<c-\\>', '<cmd><C-U>TmuxNavigatePrevious<cr>' },
     },
   },
   { 'Bilal2453/luvit-meta', lazy = true },
@@ -709,7 +717,7 @@ require('lazy').setup({
           --
           -- When you move your cursor, the highlights will be cleared (the second autocommand).
           local client = vim.lsp.get_client_by_id(event.data.client_id)
-          if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_documentHighlight) then
+          if client and client:supports_method(vim.lsp.protocol.Methods.textDocument_documentHighlight) then
             local highlight_augroup = vim.api.nvim_create_augroup('kickstart-lsp-highlight', { clear = false })
             vim.api.nvim_create_autocmd({ 'CursorHold', 'CursorHoldI' }, {
               buffer = event.buf,
@@ -736,7 +744,7 @@ require('lazy').setup({
           -- code, if the language server you are using supports them
           --
           -- This may be unwanted, since they displace some of your code
-          if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_inlayHint) then
+          if client and client:supports_method(vim.lsp.protocol.Methods.textDocument_inlayHint) then
             map('<leader>th', function()
               vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled { bufnr = event.buf })
             end, '[T]oggle Inlay [H]ints')
@@ -773,7 +781,7 @@ require('lazy').setup({
       local servers = {
         clangd = {},
         gopls = {},
-        pyright = {},
+        -- pyright = {},
         -- rust_analyzer = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
@@ -781,7 +789,7 @@ require('lazy').setup({
         --    https://github.com/pmizio/typescript-tools.nvim
         --
         -- But for many setups, the LSP (`ts_ls`) will work just fine
-        ts_ls = {},
+        -- ts_ls = {},
         --
 
         lua_ls = {
@@ -855,7 +863,7 @@ require('lazy').setup({
         -- Disable "format_on_save lsp_fallback" for languages that don't
         -- have a well standardized coding style. You can add additional
         -- languages here or re-enable it for the disabled ones.
-        local disable_filetypes = { c = true, cpp = true }
+        local disable_filetypes = { c = true, cpp = true, cuda = true }
         local lsp_format_opt
         if disable_filetypes[vim.bo[bufnr].filetype] then
           lsp_format_opt = 'never'
@@ -995,32 +1003,6 @@ require('lazy').setup({
     end,
   },
 
-  -- Feline: Custom status bar
-  {
-    'freddiehaddad/feline.nvim',
-    opts = {},
-    config = function(_, opts)
-      local theme = {
-        fg = '#928374',
-        bg = '#1F2223',
-        black = '#1B1B1B',
-        skyblue = '#458588',
-        cyan = '#83a597',
-        green = '#689d6a',
-        oceanblue = '#1d2021',
-        magenta = '#fb4934',
-        orange = '#fabd2f',
-        red = '#cc241d',
-        violet = '#b16286',
-        white = '#ebdbb2',
-        yellow = '#d79921',
-      }
-      require('feline').setup()
-      require('feline').winbar.setup()
-      require('feline').statuscolumn.setup()
-      require('feline').use_theme(theme)
-    end,
-  },
   { -- Gruvbox Colorscheme
     'ellisonleao/gruvbox.nvim',
     priority = 1000, -- Load before other plugins
