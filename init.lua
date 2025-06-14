@@ -592,7 +592,6 @@ require('lazy').setup({
       'muniftanjim/nui.nvim',
     },
   },
-
   -- LSP Plugins
   {
     -- `lazydev` configures Lua LSP for your Neovim config, runtime and plugins
@@ -995,32 +994,32 @@ require('lazy').setup({
     end,
   },
 
-  -- Feline: Custom status bar
-  {
-    'freddiehaddad/feline.nvim',
-    opts = {},
-    config = function(_, opts)
-      local theme = {
-        fg = '#928374',
-        bg = '#1F2223',
-        black = '#1B1B1B',
-        skyblue = '#458588',
-        cyan = '#83a597',
-        green = '#689d6a',
-        oceanblue = '#1d2021',
-        magenta = '#fb4934',
-        orange = '#fabd2f',
-        red = '#cc241d',
-        violet = '#b16286',
-        white = '#ebdbb2',
-        yellow = '#d79921',
-      }
-      require('feline').setup()
-      require('feline').winbar.setup()
-      require('feline').statuscolumn.setup()
-      require('feline').use_theme(theme)
-    end,
-  },
+  -- -- Feline: Custom status bar
+  -- {
+  --   'freddiehaddad/feline.nvim',
+  --   opts = {},
+  --   config = function(_, opts)
+  --     local theme = {
+  --       fg = '#928374',
+  --       bg = '#1F2223',
+  --       black = '#1B1B1B',
+  --       skyblue = '#458588',
+  --       cyan = '#83a597',
+  --       green = '#689d6a',
+  --       oceanblue = '#1d2021',
+  --       magenta = '#fb4934',
+  --       orange = '#fabd2f',
+  --       red = '#cc241d',
+  --       violet = '#b16286',
+  --       white = '#ebdbb2',
+  --       yellow = '#d79921',
+  --     }
+  --     require('feline').setup()
+  --     require('feline').winbar.setup()
+  --     require('feline').statuscolumn.setup()
+  --     require('feline').use_theme(theme)
+  --   end,
+  -- },
   { -- Gruvbox Colorscheme
     'ellisonleao/gruvbox.nvim',
     priority = 1000, -- Load before other plugins
