@@ -579,6 +579,11 @@ require('lazy').setup({
       }
     end,
   },
+  {
+    'mrcjkb/rustaceanvim',
+    version = '^6', -- Recommended
+    lazy = false, -- This plugin is already lazy
+  },
   { -- Venv Selector Plugin
     'linux-cultist/venv-selector.nvim',
     dependencies = {
@@ -793,6 +798,7 @@ require('lazy').setup({
         clangd = {},
         gopls = {},
         pyright = {},
+        rust_analyzer = {},
         -- rust_analyzer = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
