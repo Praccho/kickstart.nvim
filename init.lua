@@ -630,6 +630,12 @@ require('lazy').setup({
       },
     },
   },
+  {
+    'kmontocam/nvim-conda',
+    dependencies = {
+      'nvim-lua/plenary.nvim',
+    },
+  },
   { 'Bilal2453/luvit-meta', lazy = true },
   {
     -- Main LSP Configuration
