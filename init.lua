@@ -442,6 +442,38 @@ require('lazy').setup({
       },
     },
   },
+  -- {
+  --   'olimorris/codecompanion.nvim',
+  --   -- Pin version to avoid breaking changes
+  --   version = 'v17.33.0',
+  --   dependencies = {
+  --     'nvim-lua/plenary.nvim',
+  --     'nvim-treesitter/nvim-treesitter',
+  --     'hrsh7th/nvim-cmp',
+  --   },
+  --   config = function()
+  --     require('codecompanion').setup {
+  --       adapters = {
+  --         http = {
+  --           codex = {
+  --             type = 'openai',
+  --             opts = {
+  --               endpoint = 'https://api.openai.com/v1/chat/completions',
+  --               model = 'gpt-4o-mini', -- change to your Codex-like model
+  --               api_key = os.getenv 'OPENAI_API_KEY',
+  --               temperature = 0.2,
+  --             },
+  --           },
+  --         },
+  --       },
+  --       strategies = {
+  --         chat = { adapter = 'codex' },
+  --         inline = { adapter = 'codex' },
+  --         comment = { adapter = 'codex' },
+  --       },
+  --     }
+  --   end,
+  -- },
   -- ToggleTerm: Nice built-in terminal
   {
     'akinsho/nvim-toggleterm.lua',
@@ -839,11 +871,38 @@ require('lazy').setup({
       --  You can press `g?` for help in this menu.
       require('mason').setup()
 
+      -- Custom Python LSP
+      -- -- Custom Python LSP (dimspector)
+      -- local lspconfig = require 'lspconfig'
+      -- local configs = require 'lspconfig.configs'
+      --
+      -- if not configs.dimspector then
+      --   configs.dimspector = {
+      --     default_config = {
+      --       cmd = { '/Users/praccho/Documents/brown-cs/CS1951Q/dimspector/target/debug/dimspector', 'server' }, -- Replace with actual path
+      --       filetypes = { 'python' },
+      --       root_dir = lspconfig.util.root_pattern('pyproject.toml', 'setup.py', '.git', 'requirements.txt'),
+      --       settings = {},
+      --     },
+      --   }
+      -- end
+      --
+      -- lspconfig.dimspector.setup {
+      --   capabilities = require('cmp_nvim_lsp').default_capabilities(),
+      --   handlers = {
+      --     ['textDocument/publishDiagnostics'] = function(err, result, ctx)
+      --       print('Got diagnostics: ' .. vim.inspect(result))
+      --       vim.lsp.diagnostic.on_publish_diagnostics(err, result, ctx)
+      --     end,
+      --   },
+      -- }
+
       -- You can add other tools here that you want Mason to install
       -- for you, so that they are available from within Neovim.
       local ensure_installed = vim.tbl_keys(servers or {})
       vim.list_extend(ensure_installed, {
         'stylua', -- Used to format Lua code
+        'pyright',
       })
       require('mason-tool-installer').setup { ensure_installed = ensure_installed }
 
