@@ -442,6 +442,16 @@ require('lazy').setup({
       },
     },
   },
+  {
+    'sphamba/smear-cursor.nvim',
+    opts = {
+      -- Smear cursor color. Defaults to Cursor GUI color
+      smear_between_buffers = true,
+      smear_between_neighbor_lines = true,
+      scroll_buffer_space = true,
+      legacy_computing_symbols_support = false,
+    },
+  },
   -- {
   --   'olimorris/codecompanion.nvim',
   --   -- Pin version to avoid breaking changes
