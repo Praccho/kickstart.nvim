@@ -156,6 +156,28 @@ vim.opt.cursorline = true
 -- Minimal number of screen lines to keep above and below the cursor.
 vim.opt.scrolloff = 10
 
+-- Code folding via treesitter
+vim.opt.foldmethod = 'expr'
+vim.opt.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
+vim.opt.foldlevelstart = 99
+
+vim.filetype.add {
+  extension = { metal = 'metal' },
+}
+
+-- Neovim 0.12 bundles markdown parsers, but markdown Treesitter highlighting
+-- can crash when stale nvim-treesitter parser/query files shadow the runtime
+-- copies. Keep markdown editing stable with Vim syntax and non-TS folds.
+vim.api.nvim_create_autocmd('FileType', {
+  pattern = { 'markdown', 'markdown_inline', 'mdx' },
+  callback = function(event)
+    pcall(vim.treesitter.stop, event.buf)
+    vim.bo[event.buf].syntax = 'markdown'
+    vim.wo.foldmethod = 'manual'
+    vim.wo.foldexpr = '0'
+  end,
+})
+
 -- [[ Basic Keymaps ]]
 --  See `:help vim.keymap.set()`
 
@@ -263,6 +285,14 @@ vim.opt.rtp:prepend(lazypath)
 require('lazy').setup({
   -- NOTE: Plugins can be added with a link (or for a github repo: 'owner/repo' link).
   'tpope/vim-sleuth', -- Detect tabstop and shiftwidth automatically
+
+  {
+    'lervag/vimtex',
+    lazy = false,
+    init = function()
+      vim.g.vimtex_view_method = 'zathura'
+    end,
+  },
 
   -- NOTE: Plugins can also be added by using a table,
   -- with the first argument being the link and the following
@@ -781,7 +811,7 @@ require('lazy').setup({
           --
           -- When you move your cursor, the highlights will be cleared (the second autocommand).
           local client = vim.lsp.get_client_by_id(event.data.client_id)
-          if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_documentHighlight) then
+          if client and client:supports_method(vim.lsp.protocol.Methods.textDocument_documentHighlight) then
             local highlight_augroup = vim.api.nvim_create_augroup('kickstart-lsp-highlight', { clear = false })
             vim.api.nvim_create_autocmd({ 'CursorHold', 'CursorHoldI' }, {
               buffer = event.buf,
@@ -808,7 +838,7 @@ require('lazy').setup({
           -- code, if the language server you are using supports them
           --
           -- This may be unwanted, since they displace some of your code
-          if client and client.supports_method(vim.lsp.protocol.Methods.textDocument_inlayHint) then
+          if client and client:supports_method(vim.lsp.protocol.Methods.textDocument_inlayHint) then
             map('<leader>th', function()
               vim.lsp.inlay_hint.enable(not vim.lsp.inlay_hint.is_enabled { bufnr = event.buf })
             end, '[T]oggle Inlay [H]ints')
@@ -847,6 +877,7 @@ require('lazy').setup({
         gopls = {},
         pyright = {},
         rust_analyzer = {},
+        texlab = {},
         -- rust_analyzer = {},
         -- ... etc. See `:help lspconfig-all` for a list of all the pre-configured LSPs
         --
@@ -928,6 +959,23 @@ require('lazy').setup({
           end,
         },
       }
+
+      -- Metal LSP
+      local lspconfig = require 'lspconfig'
+      local configs = require 'lspconfig.configs'
+
+      if not configs.metal_lsp then
+        configs.metal_lsp = {
+          default_config = {
+            cmd = { 'metal-lsp' },
+            filetypes = { 'metal' },
+            root_dir = lspconfig.util.root_pattern('.git'),
+            settings = {},
+          },
+        }
+      end
+
+      lspconfig.metal_lsp.setup {}
     end,
   },
 
@@ -1184,14 +1232,19 @@ require('lazy').setup({
       ensure_installed = { 'bash', 'c', 'diff', 'html', 'lua', 'luadoc', 'query', 'vim', 'vimdoc' },
       -- Autoinstall languages that are not installed
       auto_install = true,
+      -- Neovim 0.12 bundles markdown and markdown_inline parsers. Keeping stale
+      -- nvim-treesitter copies around can shadow the bundled parser and crash
+      -- the markdown highlighter.
+      ignore_install = { 'latex', 'markdown', 'markdown_inline' },
       highlight = {
         enable = true,
         -- Some languages depend on vim's regex highlighting system (such as Ruby) for indent rules.
         --  If you are experiencing weird indenting issues, add the language to
         --  the list of additional_vim_regex_highlighting and disabled languages for indent.
         additional_vim_regex_highlighting = { 'ruby' },
+        disable = { 'latex', 'markdown', 'markdown_inline', 'mdx' },
       },
-      indent = { enable = true, disable = { 'ruby' } },
+      indent = { enable = true, disable = { 'ruby', 'markdown', 'markdown_inline', 'mdx' } },
     },
     -- There are additional nvim-treesitter modules that you can use to interact
     -- with nvim-treesitter. You should go explore a few and see what interests you:
